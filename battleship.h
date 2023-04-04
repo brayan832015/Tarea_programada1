@@ -1,19 +1,28 @@
 #ifndef BATTLESHIP_H
 #define BATTLESHIP_H
-#include <vector>
 using namespace std;
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <utility>
 
-class Ships {
+
+
+class Player {
+    public:
+        void read_j1();
+        void read_j2();
+};
+
+
+
+/*class Ships {
     public:
         int x;
         int y;
         int large;        
-};
-
-class Cell {
-    public:
-        bool empty;
-        Ships ship;
 };
 
 class Board_ocean {
@@ -23,7 +32,6 @@ class Board_ocean {
         void print_board_ocean();
         static const int Rows = 5;
         static const int Columns = 5;
-        Cell cells_ocean [Rows][Columns];
         
 };
 
@@ -36,9 +44,8 @@ class Board_shot {
         void print_board_shot();
         static const int Rows = 5;
         static const int Columns = 5;
-        Cell cells_shot [Rows][Columns];
         
 };
 
-
+*/
 #endif

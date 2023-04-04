@@ -1,8 +1,8 @@
 Nombre de Jugador:
-Jhon Doe
+Brayan
 Coordenadas submarino
-A1,B1,C1
+A1,A2,A3
 Coordenadas crucero
-C3,C4
+C1,C2
 Coordenadas lancha
-E2
+D3
