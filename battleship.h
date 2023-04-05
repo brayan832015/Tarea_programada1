@@ -8,32 +8,34 @@ using namespace std;
 #include <sstream>
 #include <utility>
 
-
-
 class Player {
     public:
         void read_j1();
         void read_j2();
 };
 
-
-
-/*class Ships {
-    public:
-        int x;
-        int y;
-        int large;        
+class Cell {
+public:
+    bool occupied = false;
+    bool fire = false;
+    char symbol = 'X';
 };
 
-class Board_ocean {
+// Clase para representar el tablero
+class Board {
     public:
-        Board_ocean();
-        bool place_ship(Ships ship);
-        void print_board_ocean();
-        static const int Rows = 5;
-        static const int Columns = 5;
-        
+        int size;
+        std::vector<std::vector<Cell>> cells;
+        Board(int size) : size(size), cells(size, std::vector<Cell>(size)) {}
+        void imprimir();
+        void place_submarine(int fila, int columna);
+        void place_cruise(int fila, int columna);
+        void place_boat(int fila, int columna);
 };
+
+
+
+/*
 
 class Board_shot {
     public:

@@ -5,4 +5,4 @@ A1,A2,A3
 Coordenadas crucero
 C1,C2
 Coordenadas lancha
-D3
+E3
