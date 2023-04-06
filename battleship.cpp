@@ -1,8 +1,105 @@
 #include <iostream>
 #include "battleship.h"
+std::ifstream archive_j1("barcos_j1.txt");
+std::ifstream archive_j2("barcos_j2.txt");
+int error = 0;
+int impact_j1 = 0;
+int impact_j2 = 0;
+Player j1;
+Player j2;
+Board board_ocean_j1(6);
+Board board_fire_j1(6);
+Board board_ocean_j2(6);
+Board board_fire_j2(6);
+
+bool game_over() {
+    if(impact_j2 == 6 || impact_j1 == 6){
+        if (impact_j2==6){
+            cout<<"Se acabo el juego"<<endl;
+            cout<<"Gano el jugador 2"<<endl;
+        }
+        if (impact_j1==6){
+            cout<<"Se acabo el juego"<<endl;
+            cout<<"Gano el jugador 1"<<endl;
+        }
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
+int main(){ //funciones del programa al ejecutarse
+    if (!game_over()){
+        int columna = 0;
+        int fila = 0;
+        j1.read_j1();
+        j2.read_j2();
+        game_over();
+        while (!game_over() and error==0) {
+            // Turno del jugador 1
+            j1.shot_j1();
+            if (j1.last_shot_hit) {
+                continue;
+            }
+            while (!game_over()) {
+                // Turno del jugador 2
+                j2.shot_j2();
+                if (j2.last_shot_hit) {
+                    continue;
+                }
+                else{
+                    break;
+                }
+            }
+            
+        }
+        
+
+    }
+    else{
+        cout<<"Acabo"<<endl;
+    }
+    
+}
+
+void Player::shot_j1(){
+
+    cout<<"Jugador: "<<"player_1_name"<<endl;
+    cout<<"Tablero de tiro"<<endl;
+    board_fire_j1.print();
+    cout<<"Tablero oceano "<<endl;
+    board_ocean_j1.print();
+    int columna = 0;
+    int fila = 0;
+    string coordenada_disparo;
+    cout << "Turno del jugador 1. Ingrese la coordenada de disparo: ";
+    cin >> coordenada_disparo;
+    columna = coordenada_disparo[0] - 'A' + 1;
+    fila = coordenada_disparo[1] - '1' + 1;
+    board_ocean_j2.fire_j1(columna,fila);
+}
+
+void Player::shot_j2(){
+    cout<<"Jugador: "<<"player_2_name"<<endl;
+    cout<<"Tablero de tiro"<<endl;
+    board_fire_j2.print();
+    cout<<"Tablero oceano "<<endl;
+    board_ocean_j2.print();
+    int columna = 0;
+    int fila = 0;
+    string coordenada_disparo;
+    cout << "Turno del jugador 2. Ingrese la coordenada de disparo: ";
+    cin >> coordenada_disparo;
+    columna = coordenada_disparo[0] - 'A' + 1;
+    fila = coordenada_disparo[1] - '1' + 1;
+    board_ocean_j1.fire_j2(columna,fila);
+}
 
 void Board::place_submarine(int fila, int columna) {
         cells[fila][columna].occupied = true;
+        if (cells[fila][columna].occupied){
+        }
         cells[fila][columna].symbol = 'S';
     }
 
@@ -17,7 +114,29 @@ void Board::place_boat(int fila, int columna) {
         
     }
 
-void Board::imprimir(){
+void Board::print(){
+        cells[0][0].occupied = false;
+        cells[0][0].symbol = 'x';
+        cells[1][0].occupied = false;
+        cells[1][0].symbol = 'A';
+        cells[2][0].occupied = false;
+        cells[2][0].symbol = 'B';
+        cells[3][0].occupied = false;
+        cells[3][0].symbol = 'C';
+        cells[4][0].occupied = false;
+        cells[4][0].symbol = 'D';
+        cells[5][0].occupied = false;
+        cells[5][0].symbol = 'E';
+        cells[0][1].occupied = false;
+        cells[0][1].symbol = '1';
+        cells[0][2].occupied = false;
+        cells[0][2].symbol = '2';
+        cells[0][3].occupied = false;
+        cells[0][3].symbol = '3';
+        cells[0][4].occupied = false;
+        cells[0][4].symbol = '4';
+        cells[0][5].occupied = false;
+        cells[0][5].symbol = '5';
         for (int fila = 0; fila < size; fila++) {
             for (int columna = 0; columna < size; columna++) {
                 std::cout << cells[fila][columna].symbol << " ";
@@ -27,10 +146,7 @@ void Board::imprimir(){
     }
 
 void Player::read_j1(){
-    std::ifstream archive_j1("barcos_j1.txt");
     if (archive_j1.is_open()) {
-
-        Board board_oceano_j1(5);
 
         string ignore_1;
         getline(archive_j1, ignore_1); 
@@ -66,13 +182,15 @@ void Player::read_j1(){
             int number = stoi(coord_submarine_j1.substr(1));
             if (number > 5 || letter > 5){
                 cout<<"Error: el submarino del jugador 1 se sale del tablero"<<endl;
+                error++;
                 out_submarine_j1++;
             }
             else{
-                board_oceano_j1.place_submarine(letter-1,number-1);
+                board_ocean_j1.place_submarine(letter,number);
                 large_submarine_j1++;
                 if (large_submarine_j1 > 3){
                     cout<<"Error: el submarino del jugador 1 tiene mas de 3 coordenadas"<<endl;
+                    error++;
                 }
                 
             }
@@ -82,6 +200,7 @@ void Player::read_j1(){
             if (large_submarine_j1 != 3 || out_submarine_j1 != 0){
                 if (large_submarine_j1 < 3 and out_submarine_j1 == 0){
                     cout<<"Error: el submarino del jugador 1 tiene menos de 3 coordenadas"<<endl;
+                    error++;
                 }
                 break;
             }
@@ -99,13 +218,15 @@ void Player::read_j1(){
             int number = stoi(coord_cruise_j1.substr(1));
             if (number > 5 || letter > 5){
                 cout<<"Error: el crucero del jugador 1 se sale del tablero"<<endl;
+                error++;
                 out_cruise_j1++;
             }
             else{
-                board_oceano_j1.place_cruise(letter-1,number-1);
+                board_ocean_j1.place_cruise(letter,number);
                 cruise_large_j1++;
                 if (cruise_large_j1 > 2){
                 cout<<"Error: el crucero del jugador 1 tiene mas de 2 coordenadas"<<endl;
+                error++;
                 }
             }
         }
@@ -113,6 +234,7 @@ void Player::read_j1(){
             if (cruise_large_j1 != 2 || out_cruise_j1 != 0){
                 if (cruise_large_j1 < 3 and out_cruise_j1 == 0){
                     cout<<"Error: el crucero del jugador 1 tiene menos de 2 coordenadas"<<endl;
+                    error++;
                 }
                 break;
             }
@@ -129,13 +251,15 @@ void Player::read_j1(){
             int number = stoi(coord_boat_j1.substr(1));
             if (number > 5 || letter > 5){
                 cout<<"Error: la lancha del jugador 1 se sale del tablero"<<endl;
+                error++;
                 out_boat_j1++;
             }
             else{
-                board_oceano_j1.place_boat(letter-1,number-1);
+                board_ocean_j1.place_boat(letter,number);
                 large_boat_j1++;
                 if (large_boat_j1 > 1){
                    cout<<"Error: la lancha del jugador 1 tiene mas de 1 coordenada"<<endl; 
+                   error++;
                 }
             }
         }
@@ -144,22 +268,21 @@ void Player::read_j1(){
                 break;
             }
         }
-        cout<<"Tablero de oceano "<< player_1_name<<":" <<endl;
-        board_oceano_j1.imprimir();
+        /*cout<<"Jugador: "<<player_1_name<<endl;
+        cout<<"Tablero de tiro"<<endl;
+        board_fire_j1.print();
+        cout<<"Tablero oceano"<<endl;
+        board_ocean_j1.print();*/
         archive_j1.close();
+        
     } 
     else {
         cout << "No se pudo abrir el archivo barcos_j1.txt" << std::endl;
     }
-    
-    
 }
 
 void Player::read_j2(){
-    std::ifstream archive_j2("barcos_j2.txt");
     if (archive_j2.is_open()) {
-
-        Board board_oceano_j2(5);
 
         string ignore_1;
         getline(archive_j2, ignore_1); 
@@ -195,13 +318,15 @@ void Player::read_j2(){
             int number = stoi(coord_submarine_j2.substr(1));
             if (number > 5 || letter > 5){
                 cout<<"Error: el submarino del jugador 2 se sale del tablero"<<endl;
+                error++;
                 out_submarine_j2++;
             }
             else{
-                board_oceano_j2.place_submarine(letter-1,number-1);
+                board_ocean_j2.place_submarine(letter,number);
                 large_submarine_j2++;
                 if (large_submarine_j2 > 3){
                     cout<<"Error: el submarino del jugador 2 tiene mas de 3 coordenadas"<<endl;
+                    error++;
                 }
             }
         }
@@ -209,6 +334,7 @@ void Player::read_j2(){
             if (large_submarine_j2 != 3 || out_submarine_j2 != 0){
                 if (large_submarine_j2 < 3 and out_submarine_j2 == 0){
                     cout<<"Error: el submarino del jugador 2 tiene menos de 3 coordenadas"<<endl;
+                    error++;
                 }
                 break;
             }
@@ -225,13 +351,15 @@ void Player::read_j2(){
             int number = stoi(coord_cruise_j2.substr(1));
             if (number > 5 || letter > 5){
                 cout<<"Error: el crucero del jugador 2 se sale del tablero"<<endl;
+                error++;
                 out_cruise_j2++;
             }
             else{
-                board_oceano_j2.place_cruise(letter-1,number-1);
+                board_ocean_j2.place_cruise(letter,number);
                 cruise_large_j2++;
                 if (cruise_large_j2 > 2){
                 cout<<"Error: el crucero del jugador 2 tiene mas de 2 coordenadas"<<endl;
+                error++;
                 }
             }
         }
@@ -239,6 +367,7 @@ void Player::read_j2(){
             if (cruise_large_j2 != 2 || out_cruise_j2 != 0){
                 if (cruise_large_j2 < 3 and out_cruise_j2 == 0){
                     cout<<"Error: el crucero del jugador 2 tiene menos de 2 coordenadas"<<endl;
+                    error++;
                 }
                 break;
             }
@@ -255,13 +384,15 @@ void Player::read_j2(){
             int number = stoi(coord_boat_j2.substr(1));
             if (number > 5 || letter > 5){
                 cout<<"Error: la lancha del jugador 2 se sale del tablero"<<endl;
+                error++;
                 out_boat_j2++;
             }
             else{
-                board_oceano_j2.place_boat(letter-1,number-1);
+                board_ocean_j2.place_boat(letter,number);
                 large_boat_j2++;
                 if (large_boat_j2 > 1){
                    cout<<"Error: la lancha del jugador 2 tiene mas de 1 coordenada"<<endl; 
+                   error++;
                 }
             }
         }
@@ -270,70 +401,78 @@ void Player::read_j2(){
                 break;
             }
         } 
-        cout<<"Tablero de oceano "<< player_2_name<<":" <<endl;
-        board_oceano_j2.imprimir();
-        archive_j2.close();
+        /*cout<<"Jugador: "<<player_2_name<<endl;
+        cout<<"Tablero de tiro"<<endl;
+        board_fire_j2.print();
+        cout<<"Tablero oceano "<<endl;
+        board_ocean_j2.print();
+
+        board_ocean_j1.fire_j2(3,4);
+        board_ocean_j1.fire_j2(3,3);
+        board_ocean_j1.fire_j2(3,2);
+        board_ocean_j1.fire_j2(3,1);
+        board_ocean_j1.fire_j2(2,1);
+        board_ocean_j1.fire_j2(4,1);
+        board_ocean_j1.fire_j2(1,1);
+        cout<<"oceano j1"<<endl;
+        board_ocean_j1.print();
+        cout<<"tiro j1 "<<endl;
+        board_fire_j1.print();
+        cout<<"oceano j2"<<endl;
+        board_ocean_j2.print();
+        cout<<"tiro j2"<<endl;
+        board_fire_j2.print();*/
+
+
+        archive_j2.close(); 
     } 
     else {
         cout << "No se pudo abrir el archivo barcos_j2.txt" << std::endl;
     }
 }
 
-
-
-/*
-Board_shot::Board_shot(){
-    for (int row = 0; row < Rows; row++){
-        for (int col = 0; col < Columns; col++){
-            this->cells_shot[row][col].empty = true; //crear tablero de tiro vacio
+void Board::fire_j1(int fila, int columna){
+    if (cells[fila][columna].occupied){
+        board_fire_j1.impact(fila, columna);
+        cells[fila][columna].fire = true;
+        cells[fila][columna].symbol = 'I';
+        impact_j1++;
+        if(impact_j1 < 5){
+            j1.last_shot_hit = true;
         }
+        cout<<"Impacto!"<<endl;
+    }
+    else {
+        j1.last_shot_hit = false;
+        board_fire_j1.water(fila, columna);
+        cout<<"Agua!"<<endl;
+        cells[fila][columna].symbol = 'A';
     }
 }
 
-bool Board_shot::attack_cell(int x, int y){
-    //Ver si la celda esta vacia
-    if (this->cells_shot[x][y].empty){
-        cout<<"¡Agua!"<<endl;
-        return false;
-    }
-    //Barco impactado
-    else{
-        this->cells_shot[x][y].ship.large--;
-        if (this->cells_shot[x][y].ship.large != 0){
-            cout<<"¡Impacto!"<<endl;
+void Board::fire_j2(int fila, int columna){
+    if (cells[fila][columna].occupied){
+        board_fire_j2.impact(fila, columna);
+        cells[fila][columna].fire = true;
+        cells[fila][columna].symbol = 'I';
+        impact_j2++;
+        if(impact_j2 < 5){
+            j2.last_shot_hit = true;
         }
-        else {
-            cout<<"¡Hundido!"<<endl;
-        }
+        cout<<"Impacto!"<<endl;
     }
-    return true;
+    else {
+        j2.last_shot_hit = false;
+        board_fire_j2.water(fila, columna);
+        cout<<"Agua!"<<endl;
+        cells[fila][columna].symbol = 'A';
+    }
 }
 
-void Board_shot::print_board_shot(){
-    cout << "Tablero de tiro";   
-    for (int i = 0; i < Rows; i++){
-        cout << endl;
-        for (int j = 0; j < Columns; j++){
-            if (this->cells_shot[i][j].empty){
-                cout << "| X |";
-            }
-            else {
-                //cout << this->cells_ocean[i][j]<< endl;
-            }
-        }
-        
-    }
-    cout<<endl;
+void Board::impact(int fila, int columna){
+    cells[fila][columna].symbol = 'I';
 }
 
-bool Board_shot::game_over(){
-    //Verifica si ya no quedan barcos
-    for (int i = 0; i < Rows; i++){
-        for (int j = 0; i < Columns; j++){
-            if (!this->cells_shot[i][j].empty && this->cells_shot[i][j].ship.large > 0){
-                return false;
-            }
-        }
-    }
-    return true;
-}*/
+void Board::water(int fila, int columna){
+    cells[fila][columna].symbol = 'A';
+}
