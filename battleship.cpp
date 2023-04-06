@@ -5,6 +5,10 @@ std::ifstream archive_j2("barcos_j2.txt");
 int error = 0;
 int impact_j1 = 0;
 int impact_j2 = 0;
+int sub_j1_impact = 0;
+int cruise_j1_impact = 0;
+int sub_j2_impact = 0;
+int cruise_j2_impact = 0;
 Player j1;
 Player j2;
 Board board_ocean_j1(6);
@@ -29,10 +33,8 @@ bool game_over() {
     }
 }
 
-int main(){ //funciones del programa al ejecutarse
+int main(){ 
     if (!game_over()){
-        int columna = 0;
-        int fila = 0;
         j1.read_j1();
         j2.read_j2();
         game_over();
@@ -52,27 +54,25 @@ int main(){ //funciones del programa al ejecutarse
                     break;
                 }
             }
-            
         }
-        
-
     }
     else{
         cout<<"Acabo"<<endl;
-    }
-    
+    } 
 }
 
 void Player::shot_j1(){
-
-    cout<<"Jugador: "<<"player_1_name"<<endl;
+    cout<<"Jugador: "<<"Jugador 1"<<endl;
+    cout<<endl;
     cout<<"Tablero de tiro"<<endl;
     board_fire_j1.print();
+    cout<<endl;
     cout<<"Tablero oceano "<<endl;
     board_ocean_j1.print();
     int columna = 0;
     int fila = 0;
     string coordenada_disparo;
+    cout<<endl;
     cout << "Turno del jugador 1. Ingrese la coordenada de disparo: ";
     cin >> coordenada_disparo;
     columna = coordenada_disparo[0] - 'A' + 1;
@@ -81,14 +81,17 @@ void Player::shot_j1(){
 }
 
 void Player::shot_j2(){
-    cout<<"Jugador: "<<"player_2_name"<<endl;
+    cout<<"Jugador: "<<"Jugador 2"<<endl;
+    cout<<endl;
     cout<<"Tablero de tiro"<<endl;
     board_fire_j2.print();
+    cout<<endl;
     cout<<"Tablero oceano "<<endl;
     board_ocean_j2.print();
     int columna = 0;
     int fila = 0;
     string coordenada_disparo;
+    cout<<endl;
     cout << "Turno del jugador 2. Ingrese la coordenada de disparo: ";
     cin >> coordenada_disparo;
     columna = coordenada_disparo[0] - 'A' + 1;
@@ -98,8 +101,6 @@ void Player::shot_j2(){
 
 void Board::place_submarine(int fila, int columna) {
         cells[fila][columna].occupied = true;
-        if (cells[fila][columna].occupied){
-        }
         cells[fila][columna].symbol = 'S';
     }
 
@@ -147,7 +148,6 @@ void Board::print(){
 
 void Player::read_j1(){
     if (archive_j1.is_open()) {
-
         string ignore_1;
         getline(archive_j1, ignore_1); 
 
@@ -191,8 +191,7 @@ void Player::read_j1(){
                 if (large_submarine_j1 > 3){
                     cout<<"Error: el submarino del jugador 1 tiene mas de 3 coordenadas"<<endl;
                     error++;
-                }
-                
+                }  
             }
             
         }
@@ -204,10 +203,8 @@ void Player::read_j1(){
                 }
                 break;
             }
-
         }
         
-
         vector<pair<int, int>> numeric_coordinates_cruise;
         string coord_cruise_j1;
         stringstream ss_cruise(cruise_coordinates_j1);
@@ -225,8 +222,8 @@ void Player::read_j1(){
                 board_ocean_j1.place_cruise(letter,number);
                 cruise_large_j1++;
                 if (cruise_large_j1 > 2){
-                cout<<"Error: el crucero del jugador 1 tiene mas de 2 coordenadas"<<endl;
-                error++;
+                    cout<<"Error: el crucero del jugador 1 tiene mas de 2 coordenadas"<<endl;
+                    error++;
                 }
             }
         }
@@ -268,13 +265,7 @@ void Player::read_j1(){
                 break;
             }
         }
-        /*cout<<"Jugador: "<<player_1_name<<endl;
-        cout<<"Tablero de tiro"<<endl;
-        board_fire_j1.print();
-        cout<<"Tablero oceano"<<endl;
-        board_ocean_j1.print();*/
         archive_j1.close();
-        
     } 
     else {
         cout << "No se pudo abrir el archivo barcos_j1.txt" << std::endl;
@@ -340,7 +331,6 @@ void Player::read_j2(){
             }
         }
 
-
         vector<pair<int, int>> numeric_coordinates_cruise;
         string coord_cruise_j2;
         stringstream ss_cruise(cruise_coordinates_j2);
@@ -373,7 +363,6 @@ void Player::read_j2(){
             }
         }
 
-
         vector<pair<int, int>> numeric_coordinates_boat;
         string coord_boat_j2;
         stringstream ss_boat(boat_coordinates_j2);
@@ -401,29 +390,6 @@ void Player::read_j2(){
                 break;
             }
         } 
-        /*cout<<"Jugador: "<<player_2_name<<endl;
-        cout<<"Tablero de tiro"<<endl;
-        board_fire_j2.print();
-        cout<<"Tablero oceano "<<endl;
-        board_ocean_j2.print();
-
-        board_ocean_j1.fire_j2(3,4);
-        board_ocean_j1.fire_j2(3,3);
-        board_ocean_j1.fire_j2(3,2);
-        board_ocean_j1.fire_j2(3,1);
-        board_ocean_j1.fire_j2(2,1);
-        board_ocean_j1.fire_j2(4,1);
-        board_ocean_j1.fire_j2(1,1);
-        cout<<"oceano j1"<<endl;
-        board_ocean_j1.print();
-        cout<<"tiro j1 "<<endl;
-        board_fire_j1.print();
-        cout<<"oceano j2"<<endl;
-        board_ocean_j2.print();
-        cout<<"tiro j2"<<endl;
-        board_fire_j2.print();*/
-
-
         archive_j2.close(); 
     } 
     else {
@@ -434,38 +400,82 @@ void Player::read_j2(){
 void Board::fire_j1(int fila, int columna){
     if (cells[fila][columna].occupied){
         board_fire_j1.impact(fila, columna);
+        if (cells[fila][columna].symbol == 'S'){
+            sub_j2_impact++;
+            if (sub_j2_impact == 3){
+                cout<<"Hundido!"<<endl;
+            }
+            else{
+                cout<<"Impacto!"<<endl;
+            }
+        }
+        if (cells[fila][columna].symbol == 'C'){
+            cruise_j2_impact++;
+            if (cruise_j2_impact == 2){
+                cout<<"Hundido!"<<endl;
+            }
+            else{
+                cout<<"Impacto!"<<endl;
+            }
+        }
+        if (cells[fila][columna].symbol == 'L'){
+            cout<<"Hundido!"<<endl;
+        }
         cells[fila][columna].fire = true;
         cells[fila][columna].symbol = 'I';
         impact_j1++;
-        if(impact_j1 < 5){
+        if(impact_j1 < 6){
             j1.last_shot_hit = true;
         }
-        cout<<"Impacto!"<<endl;
+        cout<<endl;
     }
     else {
         j1.last_shot_hit = false;
         board_fire_j1.water(fila, columna);
         cout<<"Agua!"<<endl;
         cells[fila][columna].symbol = 'A';
+        cout<<endl;
     }
 }
 
 void Board::fire_j2(int fila, int columna){
     if (cells[fila][columna].occupied){
+        if (cells[fila][columna].symbol == 'S'){
+            sub_j1_impact++;
+            if (sub_j1_impact == 3){
+                cout<<"Hundido!"<<endl;
+            }
+            else{
+                cout<<"Impacto!"<<endl;
+            }
+        }
+        if (cells[fila][columna].symbol == 'C'){
+            cruise_j1_impact++;
+            if (cruise_j1_impact == 2){
+                cout<<"Hundido!"<<endl;
+            }
+            else{
+                cout<<"Impacto!"<<endl;
+            }
+        }
+        if (cells[fila][columna].symbol == 'L'){
+            cout<<"Hundido!"<<endl;
+        }
         board_fire_j2.impact(fila, columna);
         cells[fila][columna].fire = true;
         cells[fila][columna].symbol = 'I';
         impact_j2++;
-        if(impact_j2 < 5){
+        if(impact_j2 < 6){
             j2.last_shot_hit = true;
         }
-        cout<<"Impacto!"<<endl;
+        cout<<endl;
     }
     else {
         j2.last_shot_hit = false;
         board_fire_j2.water(fila, columna);
         cout<<"Agua!"<<endl;
         cells[fila][columna].symbol = 'A';
+        cout<<endl;
     }
 }
 
